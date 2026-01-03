@@ -1,0 +1,204 @@
+/// G_Debug ///
+// 2026/1/3 16:47:45
+
+
+#ifndef __G_DEBUG__
+#define __G_DEBUG__ 1
+
+#include <functional>
+#include <iostream>
+#include <string.h>
+// #include <sstream>
+#include <cstring>
+#include <iomanip>
+#include <string>
+#include <chrono>
+// #include <ctime>
+
+
+namespace __G_Debug__
+{
+	std::chrono::steady_clock::time_point Start ;
+	auto ers = std::ref(std::cerr) ;
+	
+	template <typename T>
+	inline typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type 
+	to_string(const T&value) { return std::to_string(value); }
+	
+	inline std::string to_string(const bool&a) {return(a?"1":"0");}
+	inline std::string to_string(const std::string& s)
+	// {return"\""+s+"\"";}
+	{return s;}
+	inline std::string to_string(const char&c) {return std::string{"\'"}+c+"\'";}
+	inline std::string to_string(const char c[]) {return(std::string)c;}
+	
+	#ifdef _GLIBCXX_BITSET
+	template<std::size_t siz>
+	inline std::string to_string(const std::bitset<siz>&ob)
+	{
+		std::string s{""} ;
+		// for(int i)
+		for(int i=0;i<siz;++i)
+		{
+			s += '0'+(ob[i]!=0) ;
+		}
+		return s ;
+	}
+	#endif
+	
+	template<typename T1,typename T2>
+	inline std::string to_string (const std::pair<T1,T2>&a);
+	template<typename T>
+	inline auto to_string (const T&arr) -> decltype(arr.begin(), arr.end(), std::string());
+	
+	// template<typename T1,typename...Args>
+	// std::string to_string (const std::tuple<T1,Args...>&a)
+	// {
+	// 	return"("+to_string(a.first)+","+to_string(a.second)+")";
+	// }
+	// template <typename Tuple, std::size_t... Is>
+	// std::string tuple_to_string_impl(const Tuple& t, std::index_sequence<Is...>) {
+	//     std::string result;
+	//     // 使用折叠表达式展开参数包
+	//     ((result += (Is == 0 ? "" : ",") + to_string(std::get<Is>(t))), ...);
+	//     return result;
+	// }
+	// // 处理tuple
+	// template<typename... Args>
+	// std::string to_string(const std::tuple<Args...>& t) {
+	//     if constexpr (sizeof...(Args) == 0) {
+	//         return "()";  // 空元组
+	//     } else {
+	//         // 生成索引序列并调用辅助函数
+	//         return "(" + tuple_to_string_impl(t, std::index_sequence_for<Args...>{}) + ")";
+	//     }
+	// }
+	
+	template<typename T1,typename T2>
+	inline std::string to_string (const std::pair<T1,T2>&a)
+	{
+		return"("+to_string(a.first)+","+to_string(a.second)+")";
+	}
+	
+	template<typename T>
+	inline auto to_string (const T&arr) -> decltype(arr.begin(), arr.end(), std::string())
+	{
+		std::string res{"{"};
+		bool Isfirst = 1 ;
+		for(const auto&a:arr)
+		{
+			if(Isfirst)Isfirst=0;
+			else res+="," ;
+			res+=to_string(a);
+		}
+		return res+="}" ;
+	}
+	// template<size_t T>
+	// std::string to_string (const bitset<T>&x) {
+	// 	string s ;
+	// 	for(auto&v:x)
+	// 	{
+	// 		
+	// 	}
+	// };
+	
+	template<typename T>
+	inline void __GDebug_Outer(const T&v)
+	{
+		ers.get() << to_string(v) ;
+		return;
+	}
+	
+}
+
+template<typename T,typename...Args>
+inline void Debug (const std::initializer_list<T>&arr,const Args&...arg);
+template<typename T,typename...Args>
+inline void Debug(const T&a,const Args&...arg);
+
+
+template<typename T,typename...Args>
+inline void Debug (const std::initializer_list<T>&arr,const Args&...arg)
+{
+	__G_Debug__::__GDebug_Outer(arr);
+	if constexpr (sizeof...(arg)>0) Debug(arg...) ;
+	return ;
+}
+template<typename T,typename...Args>
+inline void Debug(const T&a,const Args&...arg)
+{
+	__G_Debug__::__GDebug_Outer(a);
+	if constexpr (sizeof...(arg)>0) Debug(arg...) ;
+	return ;
+}
+inline void Debug() { return ; }
+
+// template<class... Args> void Debug(Args... arg)
+// {
+// 	bool arr[] = {( __G_Debug__::Debug(arg),false)...} ;
+// 	return ;
+// }
+
+template<typename T>
+inline void SetBf(T&Buf)
+{
+	__G_Debug__::ers = Buf ;
+	return ;
+}
+inline void Preproce()
+{
+	__G_Debug__::Start = std::chrono::steady_clock::now();
+	// SetBf(std::cout);
+	// Debug( "Code: " , _File , "\nTime: "
+	// 	__DATE__ " " __TIME__
+	// 	"\n--------Out-File--------\n" );
+	// SetBf(std::cerr);
+	
+	return ;
+}
+inline void Endproce()
+{
+	auto EndT = std::chrono::system_clock::now();
+	auto EndT_time_t = std::chrono::system_clock::to_time_t(EndT);
+	auto EndT_ms = std::chrono::duration_cast<std::chrono::milliseconds>(EndT.time_since_epoch()) % 1000;
+
+	std::tm EndT_tm;
+	
+	auto end_steady = std::chrono::steady_clock::now();
+	auto duration = end_steady - __G_Debug__::Start;
+	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+	
+	// 跨平台安全的 localtime 实现
+	// #if defined(_WIN32)
+	localtime_s(&EndT_tm, &EndT_time_t);
+	// #else
+	// localtime_r(&EndT_time_t, &EndT_tm);
+	// #endif
+	
+	std::stringstream os ;
+	os << "\n--------Info--------\n" ;
+	os << ms.count() << " ms.\n"
+	<< std::put_time(&EndT_tm, "%Y/%m/%d\n%H:%M:%S")
+	<< '.' << std::setfill('0') << std::setw(3) << EndT_ms.count()
+	<< std::endl;
+	std::hash<std::string> strH ;
+	os << std::uppercase << std::hex << strH(os.str()) ;
+	
+	// #ifdef _RANDOM_H
+	// #ifdef _STL_NUMERIC_H
+	// {
+	// 	std::random_device rd ;
+	// 	std::mt19937_64 gen(rd()) ;
+	// 	std::uniform_int_distribution<unsigned long long> rad(0,std::numeric_limits<unsigned long long>::max()) ;
+	// 	rad(gen) ;
+	// }
+	// #endif
+	// #endif
+	
+	__G_Debug__::ers.get() << os.str() << std::endl ;
+	return ;
+}
+
+
+
+#endif
