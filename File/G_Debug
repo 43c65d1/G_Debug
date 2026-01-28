@@ -20,7 +20,7 @@
 namespace __G_Debug__
 {
 	std::chrono::steady_clock::time_point Start ;
-	auto ers = std::ref(std::cerr) ;
+	std::reference_wrapper<std::ostream> __ers__ = std::ref(std::cerr) ;
 	
 	template <typename T>
 	inline typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type 
@@ -32,7 +32,7 @@ namespace __G_Debug__
 		while(x){s.push_back('0'+x%10);x/=10;}
 		if(s.empty())s.push_back('0');
 		std::reverse(s.begin(),s.end());
-		return f+s;
+		return f+=s;
 	}
 	inline std::string to_string(const bool&a) {return(a?"1":"0");}
 	inline std::string to_string(const std::string& s)
@@ -114,7 +114,7 @@ namespace __G_Debug__
 	template<typename T>
 	inline void __GDebug_Outer(const T&v)
 	{
-		ers.get() << to_string(v) ;
+		__ers__.get() << to_string(v) ;
 		return;
 	}
 	
@@ -151,7 +151,7 @@ inline void Debug() { return ; }
 template<typename T>
 inline void SetBf(T&Buf)
 {
-	__G_Debug__::ers = Buf ;
+	__G_Debug__::__ers__ = Buf ;
 	return ;
 }
 inline void Preproce()
@@ -204,7 +204,7 @@ inline void Endproce()
 	// #endif
 	// #endif
 	
-	__G_Debug__::ers.get() << os.str() << std::endl ;
+	__G_Debug__::__ers__.get() << os.str() << std::endl ;
 	return ;
 }
 
