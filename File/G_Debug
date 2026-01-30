@@ -60,8 +60,8 @@ namespace __G_Debug__
 	template<typename T>
 	inline auto to_string (const T&arr) -> decltype(arr.begin(), arr.end(), std::string());
 	
-	// template<typename T1,typename...Args>
-	// std::string to_string (const std::tuple<T1,Args...>&a)
+	// template<typename T1,typename...__Args__>
+	// std::string to_string (const std::tuple<T1,__Args__...>&a)
 	// {
 	// 	return"("+to_string(a.first)+","+to_string(a.second)+")";
 	// }
@@ -73,13 +73,13 @@ namespace __G_Debug__
 	//     return result;
 	// }
 	// // 处理tuple
-	// template<typename... Args>
-	// std::string to_string(const std::tuple<Args...>& t) {
-	//     if constexpr (sizeof...(Args) == 0) {
+	// template<typename... __Args__>
+	// std::string to_string(const std::tuple<__Args__...>& t) {
+	//     if constexpr (sizeof...(__Args__) == 0) {
 	//         return "()";  // 空元组
 	//     } else {
 	//         // 生成索引序列并调用辅助函数
-	//         return "(" + tuple_to_string_impl(t, std::index_sequence_for<Args...>{}) + ")";
+	//         return "(" + tuple_to_string_impl(t, std::index_sequence_for<__Args__...>{}) + ")";
 	//     }
 	// }
 	
@@ -120,21 +120,21 @@ namespace __G_Debug__
 	
 }
 
-template<typename T,typename...Args>
-inline void Debug (const std::initializer_list<T>&arr,const Args&...arg);
-template<typename T,typename...Args>
-inline void Debug(const T&a,const Args&...arg);
+template<typename T,typename...__Args__>
+inline void Debug (const std::initializer_list<T>&arr,const __Args__&...arg);
+template<typename T,typename...__Args__>
+inline void Debug(const T&a,const __Args__&...arg);
 
 
-template<typename T,typename...Args>
-inline void Debug (const std::initializer_list<T>&arr,const Args&...arg)
+template<typename T,typename...__Args__>
+inline void Debug (const std::initializer_list<T>&arr,const __Args__&...arg)
 {
 	__G_Debug__::__GDebug_Outer(arr);
 	if constexpr (sizeof...(arg)>0) Debug(arg...) ;
 	return ;
 }
-template<typename T,typename...Args>
-inline void Debug(const T&a,const Args&...arg)
+template<typename T,typename...__Args__>
+inline void Debug(const T&a,const __Args__&...arg)
 {
 	__G_Debug__::__GDebug_Outer(a);
 	if constexpr (sizeof...(arg)>0) Debug(arg...) ;
@@ -142,7 +142,7 @@ inline void Debug(const T&a,const Args&...arg)
 }
 inline void Debug() { return ; }
 
-// template<class... Args> void Debug(Args... arg)
+// template<class... __Args__> void Debug(__Args__... arg)
 // {
 // 	bool arr[] = {( __G_Debug__::Debug(arg),false)...} ;
 // 	return ;
