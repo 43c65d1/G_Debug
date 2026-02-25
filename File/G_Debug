@@ -117,6 +117,7 @@ namespace __G_Debug__
 		__ers__.get() << to_string(v) ;
 		return;
 	}
+	inline void __GDebug_Outer() { __ers__.get().flush() ; return ; }
 	
 }
 
@@ -140,7 +141,7 @@ inline void Debug(const T&a,const __Args__&...arg)
 	if constexpr (sizeof...(arg)>0) Debug(arg...) ;
 	return ;
 }
-inline void Debug() { return ; }
+inline void Debug() { __G_Debug__::__GDebug_Outer(); return ; }
 
 // template<class... __Args__> void Debug(__Args__... arg)
 // {
@@ -207,7 +208,5 @@ inline void Endproce()
 	__G_Debug__::__ers__.get() << os.str() << std::endl ;
 	return ;
 }
-
-
 
 #endif
